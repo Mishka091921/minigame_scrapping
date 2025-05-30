@@ -10,9 +10,9 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     this.connection = amqp.connect(['amqp://localhost:5672']);
     this.channel = this.connection.createChannel({
-      json: true,
+      json: false,
       setup: async (channel) => {
-        await channel.assertQueue('minigame_result', { durable: true });
+        await channel.assertQueue('minigames', { durable: true });
       },
     });
 
@@ -23,7 +23,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   }
 
   async publishToQueue(data: any) {
-    await this.channel.sendToQueue('minigame_result', Buffer.from(JSON.stringify(data)));
+    await this.channel.sendToQueue('minigames', Buffer.from(JSON.stringify(data)));
   }
 
   async onModuleDestroy() {

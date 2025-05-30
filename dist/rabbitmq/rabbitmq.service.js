@@ -13,16 +13,16 @@ let RabbitMQService = class RabbitMQService {
     async onModuleInit() {
         this.connection = amqp.connect(['amqp://localhost:5672']);
         this.channel = this.connection.createChannel({
-            json: true,
+            json: false,
             setup: async (channel) => {
-                await channel.assertQueue('minigame_result', { durable: true });
+                await channel.assertQueue('minigames', { durable: true });
             },
         });
         this.connection.on('connect', () => console.log('✅ Connected to RabbitMQ'));
         this.connection.on('disconnect', (err) => console.error('❌ RabbitMQ disconnected', err));
     }
     async publishToQueue(data) {
-        await this.channel.sendToQueue('minigame_result', Buffer.from(JSON.stringify(data)));
+        await this.channel.sendToQueue('minigames', Buffer.from(JSON.stringify(data)));
     }
     async onModuleDestroy() {
         await this.connection.close();

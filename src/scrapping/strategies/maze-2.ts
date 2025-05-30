@@ -60,10 +60,16 @@ export class Maze2 extends AbstractGameScraper {
               { upsert: true }
             );
             if (result.upsertedId) {
+
+            const plainDoc = JSON.parse(JSON.stringify(doc));
+
+              console.log(plainDoc);
+
                await this.rabbitMQService.publishToQueue({
                   event: 'result',
-                  data: result,
+                  data: plainDoc,
                 });
+                console.log('New result');
             }
           } catch (err) {
             console.log("error")
