@@ -18,10 +18,12 @@ const abstract_game_scrapper_1 = require("./abstract-game.scrapper");
 const mongo_result_schema_1 = require("../../schema/mongo-result.schema");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const rabbitmq_service_1 = require("../../rabbitmq/rabbitmq.service");
 let Speed4 = class Speed4 extends abstract_game_scrapper_1.AbstractGameScraper {
-    constructor(mongoResultModel) {
+    constructor(mongoResultModel, rabbitMq) {
         super();
         this.mongoResultModel = mongoResultModel;
+        this.rabbitMq = rabbitMq;
         this.gameName = 'speed_4';
     }
     getUrl() {
@@ -58,7 +60,12 @@ let Speed4 = class Speed4 extends abstract_game_scrapper_1.AbstractGameScraper {
                 try {
                     const result = await this.mongoResultModel.updateOne({ round_id: doc.round_id, game_name: this.gameName, result: doc.result }, { $setOnInsert: doc }, { upsert: true });
                     if (result.upsertedId) {
-                        console.log('New document inserted:', doc);
+                        const plainDoc = JSON.parse(JSON.stringify(doc));
+                        console.log(plainDoc, 'Minigame Result Inserted');
+                        await this.rabbitMq.publishToQueue({
+                            event: 'result',
+                            data: plainDoc,
+                        });
                     }
                 }
                 catch (err) {
@@ -76,6 +83,7 @@ exports.Speed4 = Speed4;
 exports.Speed4 = Speed4 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(mongo_result_schema_1.MongoResult.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        rabbitmq_service_1.RabbitMQService])
 ], Speed4);
 //# sourceMappingURL=speed-4.js.map

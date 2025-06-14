@@ -63,13 +63,11 @@ export class Maze2 extends AbstractGameScraper {
 
             const plainDoc = JSON.parse(JSON.stringify(doc));
 
-              console.log(plainDoc);
-
+              console.log(plainDoc, 'Minigame Result Inserted');
                await this.rabbitMQService.publishToQueue({
                   event: 'result',
                   data: plainDoc,
                 });
-                console.log('New result');
             }
           } catch (err) {
             console.log("error")

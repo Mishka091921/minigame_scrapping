@@ -25,19 +25,14 @@ export class ScrappingService implements OnModuleInit, OnModuleDestroy {
   }
 
   async runTask() {
-    this.logger.log('Running scraping task');
 
     for (const scraper of this.scrapers) {
       try {
-
-        console.log(scraper,'scrapp')
         const docs: Document[] = await scraper.scrape(this.browser);
         if (docs.length === 0) {
           this.logger.warn(`No data scraped for game: ${scraper.gameName}`);
           continue;
         }
-        this.logger.log(`Scraped ${docs.length} documents from ${scraper.gameName}`);
-        // Save to MongoDB here (use injected Mongo service)
       } catch (error) {
         this.logger.error(`Error scraping ${scraper.gameName}:`, error);
       }

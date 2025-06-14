@@ -5,13 +5,15 @@ import { Document } from 'src/interface/document.interface';
 import { MongoResult, MongoResultDocument } from 'src/schema/mongo-result.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { RabbitMQService } from 'src/rabbitmq/rabbitmq.service';
 
 @Injectable()
 export class Speed4 extends AbstractGameScraper {
 
   constructor(
     @InjectModel (MongoResult.name)
-    private readonly mongoResultModel: Model<MongoResult>
+    private readonly mongoResultModel: Model<MongoResult>,
+    private readonly rabbitMq: RabbitMQService
   ) {
       super();
   }
@@ -57,8 +59,15 @@ export class Speed4 extends AbstractGameScraper {
               { upsert: true } // ✅ upsert goes here (3rd argument)
             );
 
-            if (result.upsertedId) {
-                console.log('New document inserted:', doc);
+        if (result.upsertedId) {
+
+            const plainDoc = JSON.parse(JSON.stringify(doc));
+
+              console.log(plainDoc, 'Minigame Result Inserted');
+               await this.rabbitMq.publishToQueue({
+                  event: 'result',
+                  data: plainDoc,
+                });
             }
 
           } catch (err) {

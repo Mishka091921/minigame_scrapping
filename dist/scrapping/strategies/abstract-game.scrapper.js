@@ -4,7 +4,17 @@ exports.AbstractGameScraper = void 0;
 class AbstractGameScraper {
     async openPage(browser, url) {
         const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+        await page.setDefaultNavigationTimeout(60000);
+        try {
+            await page.goto(url, {
+                waitUntil: 'networkidle2',
+                timeout: 60000,
+            });
+        }
+        catch (error) {
+            console.error(`Failed to open page: ${url}`, error);
+            throw error;
+        }
         return page;
     }
 }

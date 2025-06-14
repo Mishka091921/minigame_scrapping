@@ -30,16 +30,13 @@ let ScrappingService = ScrappingService_1 = class ScrappingService {
         }, 5000);
     }
     async runTask() {
-        this.logger.log('Running scraping task');
         for (const scraper of this.scrapers) {
             try {
-                console.log(scraper, 'scrapp');
                 const docs = await scraper.scrape(this.browser);
                 if (docs.length === 0) {
                     this.logger.warn(`No data scraped for game: ${scraper.gameName}`);
                     continue;
                 }
-                this.logger.log(`Scraped ${docs.length} documents from ${scraper.gameName}`);
             }
             catch (error) {
                 this.logger.error(`Error scraping ${scraper.gameName}:`, error);

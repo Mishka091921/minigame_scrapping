@@ -61,12 +61,11 @@ let Maze2 = class Maze2 extends abstract_game_scrapper_1.AbstractGameScraper {
                     const result = await this.mongoResultModel.updateOne({ round_id: doc.round_id, game_name: this.gameName, result: doc.result }, { $setOnInsert: doc }, { upsert: true });
                     if (result.upsertedId) {
                         const plainDoc = JSON.parse(JSON.stringify(doc));
-                        console.log(plainDoc);
+                        console.log(plainDoc, 'Minigame Result Inserted');
                         await this.rabbitMQService.publishToQueue({
                             event: 'result',
                             data: plainDoc,
                         });
-                        console.log('New result');
                     }
                 }
                 catch (err) {
